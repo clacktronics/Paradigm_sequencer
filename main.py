@@ -48,7 +48,7 @@ for sequence in sequences:
 					# Group 4 sequence step (0 0 0 0 0 0 0 0)
 					# Group 5 Plain text (sequence title)
 
-					lineRead = ure.match(' *((loop|delay) *= *(\d*))?([ 0-9]*)([ a-zA-Z0-9]*)',line)
+					lineRead = ure.match(' *((loop|delay) *= *(\d*.\d*))?([ \.0-9]*)([ a-zA-Z0-9]*)',line)
 
 					# If plain text this is treated as a title, the space inbetween 2 titles is treated as a sequence.
 					if lineRead.group(5):
@@ -59,11 +59,13 @@ for sequence in sequences:
 						if loop_read >= 2:
 
 							for repeats in range(loop):
+								while adc1.read() < 600: pass
 								for step in sequence_cache:
 									for led_number,led in enumerate(pin):
 										LED_value = int(step[led_number]) * 11
 										led.pwm(LED_value)
-									sleep(0.05)
+									sleep(delay)
+									
 							sequence_cache = []
 							loop_read = 1
 							
@@ -77,6 +79,9 @@ for sequence in sequences:
 
 					elif lineRead.group(2) == "loop":
 						loop = int(lineRead.group(3))
+					
+					elif lineRead.group(2) == "delay":
+						delay = float(lineRead.group(3))
 						print(lineRead.group(3))
 					
 					elif lineRead.group(4):
